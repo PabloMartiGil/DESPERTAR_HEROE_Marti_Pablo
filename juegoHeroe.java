@@ -54,8 +54,9 @@ public class juegoHeroe
     public static void mostrarMenu()
     {
         System.out.println("==========================================");
-        System.out.println("     EL DESPERTAR DEL HÉROE - MENÚ        ");
+        System.out.println("         EL DESPERTAR DEL HÉROE"           );
         System.out.println("==========================================");
+        System.out.println("----------- MENÚ PRINCIPAL -----------");
         System.out.println("1. Nueva partida");
         System.out.println("2. Consultar ranking");
         System.out.println("3. Ayuda");
@@ -115,7 +116,7 @@ public class juegoHeroe
         {
             int vidaEnemigo = VIDA_ENEMIGOS[i];
             System.out.println("------------------------------------------");
-            System.out.println("ENEMIGO" + (i + 1) + " DE 3 contra un Enemigo (Vida: " + vidaEnemigo + ")");
+            System.out.println("ENEMIGO " + (i + 1) + " DE 3 contra un Enemigo (Vida: " + vidaEnemigo + ")");
 
             boolean resultadoCombate = simularCombate(scanner, vidaHeroe, vidaEnemigo, pociones);
 
@@ -128,7 +129,7 @@ public class juegoHeroe
         }
         if (vicoriaTotal)
         {
-            System.out.println("¡ENHORABUENA! Has derrotado alos tres enemigos y comppletado la aventura con exito.");
+            System.out.println("¡ENHORABUENA! Has derrotado alos tres enemigos y completado la aventura con exito.");
         }
         else
         {
@@ -136,16 +137,82 @@ public class juegoHeroe
         }
 
     }
-    // Método que gesttiona lee combate por turnos de un encuentro
-    public static boolean simularCombate(Scanner scanner, int vidaH, int vidaE, int pociones)
+    public static boolean simularCombate(Scanner scanner, int vidaH, int vidaE, int poc) 
     {
-        while (vidaH > 0 && vidaE > 0)
-        {
-            System.out.println ("Estado actual -> Tu Vida: " + vidaH + " | Pociones:  " + pociones + " | Vida Enemigo: " + vidaE);
+        while (vidaH > 0 && vidaE > 0) {
+            System.out.println("\nEstado actual -> Tu Vida: " + vidaH + " | Pociones: " + poc + " | Vida Enemigo: " + vidaE);
             System.out.println("1. Atacar");
             System.out.println("2. Usar poción");
             System.out.println("3. Consultar inventario");
             System.out.println("4. Abandonar partida");
             System.out.print("Elige una acción de combate: ");
+            String opcion = scanner.nextLine();
         }
+    return vidaH > 0;
+        int opcion = elegirOpcion(scanner);
+
+            switch (opcion)
+            opcion = elegirOpcion(scanner);
+            {
+                case 1: //Atacar
+                    int danioHeroe = (int) (Math.random() * (DANIO_MAX_HEROE - DANIO_MIN_HEROE +1)) + DANIO_MIN_HEROE;
+                    vidaE -= danioHeroe;
+                    System.out.println("Has atacado al enemigo y le has causado " + danioHeroe + " de daño.");
+
+                    if (vidaE <= 0)
+                    {
+                        System.out.println("¡Has derrotado al enemigo!");
+                        return true; // El héroe gana el combate
+                    }
+
+                    // Contrataque del enemigo
+                    int danioEnemigo = (int) (Math.random() * (DANIO_MAX_ENEMIGO - DANIO_MIN_ENEMIGO +1 )) + DANIO_MIN_ENEMIGO;
+                    vidaH -= danioEnemigo;
+                    System.out.println("El enemigo contraataca y tqu quita" + danioEnemigo + "puntos de daño.");
+                    break;
+
+                case 2: // Usar poción
+                    if (poc > 0 && vidaH < VIDA_INICIAL_HEROE) 
+                    {
+                        vidaH += CURACION_POCION;
+                        if (vidaH > VIDA_INICIAL_HEROE) {
+                            vidaH = VIDA_INICIAL_HEROE;
+                        }
+                        poc--;
+                        System.out.println("Has usado una pocion. Tu vida actual es: " + vidaH);
+                    } 
+                    else if (poc <= 0) 
+                    {
+                        System.out.println("No quedan pociones disponibles.");
+                    } 
+                    else 
+                    {
+                        System.out.println("Ya tienes la vida al maximo.");
+                    }
+                    break;
+
+                case 3: // Consultar inventario
+                    System.out.println("Inventario: Tienes " + poc + " pociones restantes.");
+                    break;
+                
+                case 4: // Abandonar partida
+                    System.out.println("Has decidido abandonar la partida.");
+                    return false; // El héroe abandona el combate
+                    
+                default: 
+                    System.out.println("[ERROR] Opcion invlida. Introduce un número del 1 al 4.");
+
+            }   
+            if (vidaH <= 0)
+                {
+                    System.out.println("Te has quedado sin vida. Has sido derrtado");
+                    return false; // El héroe pierde el combate
+                }
+                
+                return true; // El combate continúa
+
+
     }
+
+
+}
