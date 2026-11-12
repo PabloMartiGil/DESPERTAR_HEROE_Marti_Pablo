@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<ranking>
+
+        
+    
+
+    <jugador>
+        <nombre>Juan</nombre>
+        <puntuacion>313</puntuacion>
+    </jugador>
+    <jugador>
+                
+        <nombre>Pablo</nombre>
+                
+        <puntuacion>13</puntuacion>
+            
+    </jugador>
+</ranking>
