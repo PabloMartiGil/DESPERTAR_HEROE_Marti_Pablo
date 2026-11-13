@@ -16,6 +16,9 @@ import org.w3c.dom.NodeList;
 
 public class juegoHeroe
 {
+    private static final String ARCHIVO_RANKING = "ranking.xml";
+    private static final int MAX_ENTRADAS_RANKING = 10;
+
     // Constantes del Héroe y Enemigos 
     public static final int VIDA_INICIAL_HEROE = 100;
     public static final int POCIONES_INICIALES = 3;
@@ -35,9 +38,7 @@ public class juegoHeroe
         {
             mostrarMenu();
             opcion = elegirOpcion(scanner);
-            
-            // Limpiar el búfer después de leer un entero para evitar problemas con futuros nextLine()
-            scanner.nextLine(); 
+            scanner.nextLine(); // Limpiar búfer
 
             switch (opcion)
             {
@@ -64,7 +65,6 @@ public class juegoHeroe
         scanner.close();
     }
 
-    // Método estático para mostrar el menú principal
     public static void mostrarMenu()
     {
         System.out.println("==========================================");
@@ -78,34 +78,31 @@ public class juegoHeroe
         System.out.print("Elige una opción: ");
     }
 
-    // Método para comprobar que el número sea entero.
     public static int elegirOpcion(Scanner scanner)
     {
         while (!scanner.hasNextInt())
         {
             System.out.println("[ERROR] Entrada no válida, introduce un número: ");
-            scanner.next(); // Limpiar la entrada errónea
+            scanner.next();
         }
         return scanner.nextInt();
     }
 
-    // Método para mostrar la ayuda
     public static void mostrarAyuda()
     {
         System.out.println("==========================================");
         System.out.println("                   AYUDA                  ");
         System.out.println("==========================================");
         System.out.println("Supera los 3 encuentros consecutivos con enemigos.");
-        System.out.println("Gestiona tu vida y tus 3 pociones inteligentemente.");
+        System.out.println("Cada enemigo derrotado otorga 100 puntos.");
+        System.out.println("Si completas la aventura, se suma tu vida restante.");
         System.out.println("¡Buena suerte, compañero!");
     }
 
-    // Método para iniciar partida
     public static void iniciarPartida(Scanner scanner)
     {
         String nombreHeroe = "";
 
-        // Control de nombre vacío o con espacios
         while (nombreHeroe.trim().isEmpty())
         {
             System.out.print("Introduce el nombre del héroe: ");
@@ -119,12 +116,11 @@ public class juegoHeroe
         
         System.out.println("¡Bienvenido, " + nombreHeroe + "! Comienza la aventura.");
 
-        // Inicializar estado de partida
         int vidaHeroe = VIDA_INICIAL_HEROE;
         int pociones = POCIONES_INICIALES;
-        boolean victoriaTotal = true;
+        int puntuacionActual = 0;
+        boolean aventuraCompletada = true;
 
-        // Bucle de los 3 encuentros consecutivos
         for (int i = 0; i < VIDA_ENEMIGOS.length; i++)
         {
             int vidaEnemigo = VIDA_ENEMIGOS[i];
@@ -136,39 +132,48 @@ public class juegoHeroe
             vidaHeroe = estadoHeroe[0];
             pociones = estadoHeroe[1];
 
-            // Si el combate devuelve falso, el héroe murió o abandonó
             if (!resultadoCombate)
             {
-                victoriaTotal = false;
-                break; // Salir del bucle de encuentros
+                aventuraCompletada = false;
+                break; 
             }
+
+            puntuacionActual += 100; // 100 puntos por cada enemigo derrotado
         }
         
-        if (victoriaTotal)
+        if (aventuraCompletada)
         {
-            System.out.println("¡ENHORABUENA! Has derrotado a los tres enemigos y completado la aventura con éxito.");
-            int puntuacion = (VIDA_ENEMIGOS.length * 100) + vidaHeroe;
-            guardarEnRanking(nombreHeroe.trim(), puntuacion);
+            System.out.println("¡ENHORABUENA! Has derrotado a los tres enemigos y completado la aventura.");
+            puntuacionActual += vidaHeroe; // Se suma la vida restante
+            guardarEnRanking(nombreHeroe.trim(), puntuacionActual);
         }
         else
         {
-            System.out.println("Partida terminada, has sido derrotado o has abandonado la aventura.");
+            System.out.println("Partida terminada. Has sido derrotado o has abandonado.");
+            if (puntuacionActual > 0)
+            {
+                System.out.println("Guardando tu progreso parcial de " + puntuacionActual + " puntos en el ranking...");
+                guardarEnRanking(nombreHeroe.trim(), puntuacionActual);
+            }
+            else
+            {
+                System.out.println("No has derrotado ningún enemigo, por lo que no se añade puntuación.");
+            }
         }
     }
 
-    // Método para mostrar el ranking
     public static void mostrarRanking()
     {
         try
         {
-            File archivo = new File("ranking.xml");
+            File archivo = obtenerArchivoRanking();
             if (!archivo.exists() || archivo.length() == 0)
             {
                 System.out.println("El ranking está vacío.");
                 return;
             }
 
-            Document documento = crearFabricaDocumentos().newDocumentBuilder().parse(archivo);
+            Document documento = leerRanking(archivo);
             NodeList jugadores = documento.getElementsByTagName("jugador");
             if (jugadores.getLength() == 0)
             {
@@ -193,48 +198,50 @@ public class juegoHeroe
         }
     }
 
-    // Método para guardar en el ranking
     public static void guardarEnRanking(String nombre, int puntuacion)
     {
         try
         {
-            Document documento;
-            File archivo = new File("ranking.xml");
-
-            if (archivo.exists() && archivo.length() > 0)
-            {
-                documento = crearFabricaDocumentos().newDocumentBuilder().parse(archivo);
-            }
-            else
-            {
-                documento = crearFabricaDocumentos().newDocumentBuilder().newDocument();
-                documento.appendChild(documento.createElement("ranking"));
-            }
+            File archivo = obtenerArchivoRanking();
+            Document documento = leerRanking(archivo);
 
             Element ranking = documento.getDocumentElement();
-            Element jugador = documento.createElement("jugador");
-            Element nombreElemento = documento.createElement("nombre");
-            nombreElemento.setTextContent(nombre);
-            Element puntuacionElemento = documento.createElement("puntuacion");
-            puntuacionElemento.setTextContent(String.valueOf(puntuacion));
-            jugador.appendChild(nombreElemento);
-            jugador.appendChild(puntuacionElemento);
-            ranking.appendChild(jugador);
-
+            
             List<Element> jugadores = new ArrayList<>();
             NodeList nodos = ranking.getElementsByTagName("jugador");
             for (int i = 0; i < nodos.getLength(); i++)
             {
                 jugadores.add((Element) nodos.item(i));
             }
-            jugadores.sort(Comparator.comparingInt((Element j) -> Integer.parseInt(
-                    j.getElementsByTagName("puntuacion").item(0).getTextContent())).reversed());
 
-            while (jugadores.size() > 10)
+            Element nuevoJugador = documento.createElement("jugador");
+            Element nombreElemento = documento.createElement("nombre");
+            nombreElemento.setTextContent(nombre);
+            Element puntuacionElemento = documento.createElement("puntuacion");
+            puntuacionElemento.setTextContent(String.valueOf(puntuacion));
+            nuevoJugador.appendChild(nombreElemento);
+            nuevoJugador.appendChild(puntuacionElemento);
+
+            jugadores.add(nuevoJugador);
+
+            // Ordenar de mayor a menor puntuación. En empates, se mantiene el orden anterior (antigüedad).
+            jugadores.sort(
+                Comparator.comparingInt((Element j) -> Integer.parseInt(
+                    j.getElementsByTagName("puntuacion").item(0).getTextContent()))
+                .reversed()
+            );
+
+            while (jugadores.size() > MAX_ENTRADAS_RANKING)
             {
-                Element ultimo = jugadores.remove(jugadores.size() - 1);
-                ranking.removeChild(ultimo);
+                jugadores.remove(jugadores.size() - 1);
             }
+
+            NodeList listaActual = ranking.getElementsByTagName("jugador");
+            for (int i = listaActual.getLength() - 1; i >= 0; i--)
+            {
+                ranking.removeChild(listaActual.item(i));
+            }
+
             for (Element entrada : jugadores)
             {
                 ranking.appendChild(entrada);
@@ -244,15 +251,15 @@ public class juegoHeroe
             transformador.setOutputProperty(OutputKeys.INDENT, "yes");
             transformador.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
             transformador.transform(new DOMSource(documento), new StreamResult(archivo));
-            System.out.println("Tu puntuación se ha guardado en el ranking.");
+            System.out.println("Tu puntuación se ha guardado correctamente en el ranking " + archivo.getAbsolutePath());
         }
         catch (Exception e)
         {
             System.out.println("[ERROR] No se ha podido guardar el ranking: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
-    // Método auxiliar para la fábrica de documentos DOM
     private static DocumentBuilderFactory crearFabricaDocumentos()
     {
         DocumentBuilderFactory fabrica = DocumentBuilderFactory.newInstance();
@@ -260,7 +267,42 @@ public class juegoHeroe
         return fabrica;
     }
 
-    // Método para simular el combate entre el héroe y un enemigo
+    private static Document leerRanking(File archivo) throws Exception
+    {
+        DocumentBuilder constructor = crearFabricaDocumentos().newDocumentBuilder();
+        if (archivo.exists() && archivo.length() > 0)
+        {
+            try
+            {
+                Document documento = constructor.parse(archivo);
+                if ("ranking".equals(documento.getDocumentElement().getTagName()))
+                {
+                    return documento;
+                }
+            }
+            catch (Exception e)
+            {
+                System.out.println("[AVISO] El XML del ranking estaba dañado. Se creará uno nuevo.");
+            }
+        }
+
+        Document documento = constructor.newDocument();
+        documento.appendChild(documento.createElement("ranking"));
+        return documento;
+    }
+
+    // Método mejorado para asegurar que el ranking.xml se guarde en la carpeta del proyecto
+    private static File obtenerArchivoRanking()
+    {
+        return new File(ARCHIVOS_DIRECTORIO_SEGURO(), ARCHIVO_RANKING);
+    }
+
+    private static File ARCHIVOS_DIRECTORIO_SEGURO()
+    {
+        // Se guarda en el directorio de trabajo actual (la carpeta raíz del proyecto)
+        return new File(System.getProperty("user.dir"));
+    }
+
     public static boolean simularCombate(Scanner scanner, int[] estadoHeroe, int vidaE) 
     {
         int vidaH = estadoHeroe[0];
@@ -279,7 +321,7 @@ public class juegoHeroe
 
             switch (opcion)
             {
-                case 1: // Atacar
+                case 1:
                     int danioHeroe = (int) (Math.random() * (DANIO_MAX_HEROE - DANIO_MIN_HEROE + 1)) + DANIO_MIN_HEROE;
                     vidaE -= danioHeroe;
                     System.out.println("Has atacado al enemigo y le has causado " + danioHeroe + " de daño.");
@@ -289,16 +331,15 @@ public class juegoHeroe
                         System.out.println("¡Has derrotado al enemigo!");
                         estadoHeroe[0] = vidaH;
                         estadoHeroe[1] = poc;
-                        return true; // El héroe gana el combate
+                        return true;
                     }
 
-                    // Contraataque del enemigo
                     int danioEnemigo = (int) (Math.random() * (DANIO_MAX_ENEMIGO - DANIO_MIN_ENEMIGO + 1)) + DANIO_MIN_ENEMIGO;
                     vidaH -= danioEnemigo;
                     System.out.println("El enemigo contraataca y te quita " + danioEnemigo + " puntos de daño.");
                     break;
 
-                case 2: // Usar poción
+                case 2:
                     if (poc > 0 && vidaH < VIDA_INICIAL_HEROE) 
                     {
                         vidaH += CURACION_POCION;
@@ -306,7 +347,6 @@ public class juegoHeroe
                             vidaH = VIDA_INICIAL_HEROE;
                         }
                         poc--;
-                       
                         System.out.println("Has usado una poción. Tu vida actual es: " + vidaH);
                     } 
                     else if (poc <= 0) 
@@ -319,15 +359,15 @@ public class juegoHeroe
                     }
                     break;
 
-                case 3: // Consultar inventario
+                case 3:
                     System.out.println("Inventario: Tienes " + poc + " pociones restantes.");
                     break;
                 
-                case 4: // Abandonar partida
+                case 4:
                     System.out.println("Has decidido abandonar la partida.");
                     estadoHeroe[0] = vidaH;
                     estadoHeroe[1] = poc;
-                    return false; // El héroe abandona el combate
+                    return false;
                     
                 default: 
                     System.out.println("[ERROR] Opción inválida. Introduce un número del 1 al 4.");
@@ -338,7 +378,7 @@ public class juegoHeroe
                 System.out.println("Te has quedado sin vida. Has sido derrotado.");
                 estadoHeroe[0] = vidaH;
                 estadoHeroe[1] = poc;
-                return false; // El héroe pierde el combate
+                return false;
             }
         }
 
