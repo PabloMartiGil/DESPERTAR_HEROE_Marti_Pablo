@@ -1,0 +1,49 @@
+﻿<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml-stylesheet type="text/xslt" href="ranking.xslt"?>
+<!DOCTYPE ranking SYSTEM "ranking.dtd">
+
+<ranking>
+            
+
+    <jugador>
+                        
+        
+        <nombre>Juan</nombre>
+                        
+        
+        <puntuacion>344</puntuacion>
+                    
+    
+    </jugador>
+    <jugador>
+        <nombre>Pedro</nombre>
+        <puntuacion>343</puntuacion>
+    </jugador>
+    <jugador>
+                        
+        
+        <nombre>Juan</nombre>
+                        
+        
+        <puntuacion>313</puntuacion>
+                    
+    
+    </jugador>
+    <jugador>
+                
+        <nombre>Alfredo</nombre>
+                
+        <puntuacion>200</puntuacion>
+            
+    </jugador>
+    <jugador>
+                        
+        
+        <nombre>Pablo</nombre>
+                        
+        
+        <puntuacion>13</puntuacion>
+                    
+    
+    </jugador>
+</ranking>

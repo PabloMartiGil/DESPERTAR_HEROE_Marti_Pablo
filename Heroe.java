@@ -1,18 +1,16 @@
-public class Heroe 
+public class Heroe extends Personaje {
+   private inventario inventario = new inventario(5);
 
-{
-private String nombre;
-private int vida;
-private int vidaMaxima;
-private int Inventario inventario;
+   public Heroe(String var1, int var2) {
+      super(var1, var2);
+   }
 
-public Heroe(String nombre, int vidaMaxima)
-{
-    this.nombre = nombre;
-    this.vidaMaxima = vidaMaxima;
-    this.vida = vidaMaxima;
-    this.Inventario = new inventario(5); //capacidad para 5 huecos
-}
+   public inventario getInventario() {
+      return this.inventario;
+   }
 
-
+   public void mostrarEstado() {
+      System.out.println("Héroe: " + this.nombre + " | Vida: " + this.vida + "/" + this.vidaMaxima);
+      this.inventario.mostrarInventario();
+   }
 }

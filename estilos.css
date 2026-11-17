@@ -1,0 +1,72 @@
+/* Configuración básica */
+body {
+    background-color: #121212;
+    color: #ffffff;
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    padding-top: 50px;
+}
+
+.contenedor {
+    width: 600px;
+    background-color: #1e1e1e;
+    padding: 25px;
+    border-radius: 8px;
+}
+
+/* Títulos */
+h1 {
+    text-align: center;
+    color: #ffcc00;
+    margin-bottom: 5px;
+}
+
+h2 {
+    text-align: center;
+    color: #aaaaaa;
+    font-size: 1rem;
+    margin-bottom: 20px;
+}
+
+/* Tabla */
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #333333;
+}
+
+th {
+    background-color: #2c2c2c;
+    color: #ffcc00;
+}
+
+/* Alineaciones y colores */
+th:first-child, td:first-child {
+    text-align: center;
+    width: 80px;
+}
+
+th:last-child, td:last-child {
+    text-align: right;
+}
+
+.puntuacion {
+    font-weight: bold;
+    color: #00bcd4;
+}
+
+/* Destacar al primer puesto */
+tbody tr:first-child {
+    background-color: rgba(255, 204, 0, 0.1);
+}
+
+tbody tr:first-child .posicion {
+    color: #ffcc00;
+    font-weight: bold;
+}

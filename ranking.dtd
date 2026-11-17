@@ -1,0 +1,4 @@
+<!ELEMENT ranking (jugador*)>
+<!ELEMENT jugador (nombre, puntuacion)>
+<!ELEMENT nombre (#PCDATA)>
+<!ELEMENT puntuacion (#PCDATA)>
