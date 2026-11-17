@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?xml-stylesheet type="text/xsl" href="ranking.xsl"?>
+<?xml-stylesheet type="text/xslt" href="ranking.xslt"?>
 <!DOCTYPE ranking SYSTEM "ranking.dtd">
 
 <ranking>

@@ -7,7 +7,7 @@
             <head>
                 <meta charset="UTF-8"/>
                 <title>Ranking - El Despertar del Héroe</title>
-                <link rel="stylesheet" type="text/css" href="estilos.css"/>
+                <link rel="stylesheet"  href="estilos.css"/>
             </head>
             <body>
                 <div class="contenedor">
